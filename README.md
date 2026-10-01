@@ -3,10 +3,11 @@ Practica 1 del curso 2026/2027 de Diseño y Programación Seguras
 
 ***PARTE I — Auditoría de seguridad***
 
-**2) Compilación Inicial:**
+**1) Compilación Inicial:**
      
-- **Comando utilizado para compilar:**  gcc -std=c11 -Wall -Wextra -Wpedantic exampleStrings_fixed.c -o exampleStrings_fixed
-- **Comando utilizado para ejecutar:**  ./exampleStrings_fixed hola adios
+- **Comando utilizado para realizar la 1ª compilación:**  gcc -std=c11 -Wall -Wextra -Wpedantic exampleStrings.c -o exampleStrings
+- **Comando utilizado para compilar el programa modificado**  gcc -std=c11 -Wall -Wextra -Wpedantic exampleStrings_fixed.c -o exampleStrings_fixed
+- **Comando utilizado para ejecutar el programa modificado:**  ./exampleStrings_fixed hola adios
   
 - **Compilador Utilizado** -> `gcc` (GNU Compiler Collection)
 - **Versión** -> gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0
@@ -22,9 +23,9 @@ Practica 1 del curso 2026/2027 de Diseño y Programación Seguras
   - **Warnings obtenidos al arreglar el error de Raw String de C++**:
   <img width="1515" height="446" alt="image" src="https://github.com/user-attachments/assets/f172103b-4825-488e-930e-65a62ab545e1" />
 
-**3) Solución de errores**
+**2) Solución de errores**
 
-3.1) FRAGMENTOS DE CÓDIGO QUE NO CUMPLEN LA NORMATIVA SEI CERT
+2.1) FRAGMENTOS DE CÓDIGO QUE NO CUMPLEN LA NORMATIVA SEI CERT
 
 ```c
 1) // Código erróneo: 
@@ -84,7 +85,7 @@ if (snprintf(key, sizeof(key), "%s = %s", argv[1], argv[2]) >= (int)sizeof(key))
 }
 ```
 
-3.2) OTRAS CORRECCIONES
+2.2) OTRAS CORRECCIONES Y MEJORAS
 ```c
   - 1) // Código erróneo: 
         const char* s1 = R"foo(
@@ -124,15 +125,15 @@ if (snprintf(key, sizeof(key), "%s = %s", argv[1], argv[2]) >= (int)sizeof(key))
 ```c
 
   - 4)  // Contexto: Se añade una comprobación más correcta en la función get_y_or_n, que tenga en cuenta mayúsculas, minúsculas y
-        // que al meterse 5 veces segiuidas un valor distinto a Y,y,N,n, se termine igualmente el programa (linea 47 a 57)
+        // que al meterse 5 veces seguidas un valor distinto a Y,y,N,n, se termine igualmente el programa (linea 47 a 57)
         // Solución: Crear un bucle do-while y un contador para los intentos fallidos
         
 ```
 
 ```c
 
-  - 5)  // Contexto: Se agrupan los printf's de las líneas 87 a 90 en 2 para realizar menos llamadas a la función.
-        // Comentario: Se podría hacer tamnién con las funciones puts de las líneas 92 a 95,
+  - 5)  // Contexto: Se agrupan las llamadas a la función printf de las líneas 87 a 90 en 2 para realizar menos llamadas a la función.
+        // Comentario: Se podría hacer también con las funciones puts de las líneas 92 a 95,
         // ya que al utilizar la función puts, se incluye un salto de línea de forma automática
         
 ```
@@ -142,3 +143,5 @@ if (snprintf(key, sizeof(key), "%s = %s", argv[1], argv[2]) >= (int)sizeof(key))
   - 6)  // Lineas comentadas que no se utilizan: 22, 28-34, 38-44, 63, 67-72, 83
         
 ```
+**3) EJEMPLO DE EJECUCIÓN**
+<img width="1515" height="1008" alt="Captura desde 2026-10-02 00-32-28" src="https://github.com/user-attachments/assets/e64e9a41-ebbf-484c-b42d-52f988e22970" />
