@@ -17,20 +17,21 @@ Practica 1 del curso 2026/2027 de Diseño y Programación Seguras
   - **`-Wpedantic`** → avisa sobre construcciones que no cumplen estrictamente el estándar seleccionado.
   - **`exampleStrings_fixed.c`** → archivo fuente que se compila.
   - **`-o exampleStrings_fixed`** → nombre del ejecutable generado.
-  - **1ª Compilación**:
+  - **Errores y Warnings obtenidos al realizar la 1ª Compilación**:
   <img width="1396" height="880" alt="image" src="https://github.com/user-attachments/assets/328434f1-1031-48f6-a715-14007614fa3e" />
-  - **Compilación tras arreglar error**:
+  - **Warnings obtenidos al arreglar el error de Raw String de C++**:
   <img width="1515" height="446" alt="image" src="https://github.com/user-attachments/assets/f172103b-4825-488e-930e-65a62ab545e1" />
 
 **3) Solución de errores**
 
-3.1) ERRORES RELACIONADOS CON EL SEI CERT
+3.1) FRAGMENTOS DE CÓDIGO QUE NO CUMPLEN LA NORMATIVA SEI CERT
 
 ```c
 1) // Código erróneo: 
 char *ptr_char  = "new string literal"; // Línea 67
 ptr_char [0] = 'N'; // Línea 101
 // Regla/s que incumple: STR30-C: Do not attempt to modify String literals.
+// Motivo: ptr_char apunta a un literal de cadena y posteriormente se intenta modificar en la linea 101.
 // Solución:
 char ptr_char[]  = "new string literal";
 ptr_char [0] = 'N';
@@ -51,7 +52,9 @@ char analitic3[]="аналитик";
 strncpy(array3, array5, sizeof(array3)); // Línea 97
 strncpy(array4, array3, strlen(array3)); // Línea 98
 // Regla/s que incumple: STR31-C: Guarantee that storage for strings has sufficient space for character data and the null terminator y
-// STR32-C. Do not pass a non-null-terminated character sequence to a library function that expects a string (la cadena array5 no termina con un \0)
+// STR32-C. Do not pass a non-null-terminated character sequence to a library function that expects a string.
+// Motivo: array3 tiene 16 bytes, pero strncpy() copia 16 caracteres, sin garantizar espacio para el terminador '\0'. 
+// Posteriormente se utiliza strlen(array3), que requiere una cadena terminada en '\0'.
 // Solución:
 strncpy(array3, array5, sizeof(array3)-1);
 array3[sizeof(array3) - 1] = '\0';
@@ -72,6 +75,8 @@ fgets(response, sizeof(response), stdin);
 5) // Código erróneo: 
 strcpy(key, argv[1]); //Linea 78
 // Regla/s que incumple: STR35-C. Do not copy data from an unbounded source to a fixed length array
+// Motivo: La función strcpy() no recibe información sobre el tamaño de key, por lo que una entrada suficientemente larga
+// puede provocar un buffer overflow.
 // Solución:
 if (snprintf(key, sizeof(key), "%s = %s", argv[1], argv[2]) >= (int)sizeof(key)) {
         fprintf(stderr,"snprintf() error - Key too long\n");
@@ -79,7 +84,7 @@ if (snprintf(key, sizeof(key), "%s = %s", argv[1], argv[2]) >= (int)sizeof(key))
 }
 ```
 
-3.1) OTRAS CORRECCIONES
+3.2) OTRAS CORRECCIONES
 ```c
   - 1) // Código erróneo: 
         const char* s1 = R"foo(
