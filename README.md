@@ -5,7 +5,8 @@ Practica 1 del curso 2026/2027 de Diseño y Programación Seguras
 
 **2) Compilación Inicial:**
      
-- **Comando utilizado:**  gcc -std=c11 -Wall -Wextra -Wpedantic exampleStrings_fixed.c -o exampleStrings_fixed
+- **Comando utilizado para compilar:**  gcc -std=c11 -Wall -Wextra -Wpedantic exampleStrings_fixed.c -o exampleStrings_fixed
+- **Comando utilizado para ejecutar:**  ./exampleStrings_fixed hola adios
   
 - **Compilador Utilizado** -> `gcc` (GNU Compiler Collection)
 - **Versión** -> gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0
@@ -46,7 +47,7 @@ char analitic3[]="аналитик";
 ```
 
 ```c
-2) // Código erróneo:
+3) // Código erróneo:
 strncpy(array3, array5, sizeof(array3)); // Línea 97
 strncpy(array4, array3, strlen(array3)); // Línea 98
 // Regla/s que incumple: STR31-C: Guarantee that storage for strings has sufficient space for character data and the null terminator y
@@ -60,15 +61,15 @@ array4[sizeof(array4) - 1] = '\0';
 ```
 
 ```c
-2) // Código erróneo: 
+4) // Código erróneo: 
 gets(response); //Linea 51
 // Regla/s que incumple: MSC24-C. Do not use deprecated or obsolescent functions
 // Solución:
-fgets(response, sizeof(response), stdin
+fgets(response, sizeof(response), stdin);
 ```
 
 ```c
-2) // Código erróneo: 
+5) // Código erróneo: 
 strcpy(key, argv[1]); //Linea 78
 // Regla/s que incumple: STR35-C. Do not copy data from an unbounded source to a fixed length array
 // Solución:
