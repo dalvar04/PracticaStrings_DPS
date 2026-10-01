@@ -78,7 +78,7 @@ if (snprintf(key, sizeof(key), "%s = %s", argv[1], argv[2]) >= (int)sizeof(key))
 }
 ```
 
-3.1) OTROS ERRORES
+3.1) OTRAS CORRECCIONES
 ```c
   - 1) // Código erróneo: 
         const char* s1 = R"foo(
