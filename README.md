@@ -16,8 +16,8 @@ Practica 1 del curso 2026/2027 de Diseño y Programación Seguras
   - **`-Wall`** → activa un conjunto amplio de advertencias.
   - **`-Wextra`** → activa advertencias adicionales.
   - **`-Wpedantic`** → avisa sobre construcciones que no cumplen estrictamente el estándar seleccionado.
-  - **`exampleStrings_fixed.c`** → archivo fuente que se compila.
-  - **`-o exampleStrings_fixed`** → nombre del ejecutable generado.
+  - **`exampleStrings.c | exampleStrings_fixed.c`** → archivo fuente que se compila.
+  - **`-o exampleStrings | exampleStrings_fixed`** → nombre del ejecutable generado.
   - **Errores y Warnings obtenidos al realizar la 1ª Compilación**:
   <img width="1396" height="880" alt="image" src="https://github.com/user-attachments/assets/328434f1-1031-48f6-a715-14007614fa3e" />
   - **Warnings obtenidos al arreglar el error de Raw String de C++**:
@@ -140,7 +140,7 @@ if (snprintf(key, sizeof(key), "%s = %s", argv[1], argv[2]) >= (int)sizeof(key))
 
 ```c
 
-  - 6)  // Lineas comentadas que no se utilizan: 22, 28-34, 38-44, 63, 67-72, 83
+  - 6)  // Líneas comentadas que no se utilizan: 22, 28-34, 38-44, 63, 67-72, 83
         
 ```
 **3) EJEMPLO DE EJECUCIÓN**
