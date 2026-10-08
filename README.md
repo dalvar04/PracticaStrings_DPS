@@ -145,3 +145,36 @@ if (snprintf(key, sizeof(key), "%s = %s", argv[1], argv[2]) >= (int)sizeof(key))
 ```
 **3) EJEMPLO DE EJECUCIÓN**
 <img width="1515" height="1008" alt="Captura desde 2026-10-02 00-32-28" src="https://github.com/user-attachments/assets/e64e9a41-ebbf-484c-b42d-52f988e22970" />
+
+
+***PARTE II — Tests y verificación***
+
+**1) Diseño de pruebas:**
+
+     1.1) STR30-C: Do not attempt to modify String literals.
+          - Problema: ptr_char apunta a un literal de cadena y posteriormente se intenta modificar en la linea 101
+          - Test o entrada: ./exampleStrings_fixed cadena1 cadena2
+          - Técnica: Añadir al comando de compilación la función -fanalyzer, para realizar un análisis estático de código
+          - Código original:
+               - Línea 67 (exampleStrings.c):  char *ptr_char  = "new string literal"; 
+               - Línea 101 (exampleStrings.c): ptr_char [0] = 'N';
+          - Resultado de la compilación con código original:
+          <img width="531" height="91" alt="image" src="https://github.com/user-attachments/assets/1e3a2acb-d23e-47fb-9596-3f08b790a21f" />
+          - Código corregido:
+               - Línea 70 (exampleStrings_fixed.c): char ptr_char [] = "new string literal"; 
+               - Línea 98 (exampleStrings_fixed.c): ptr_char [0] = 'N';
+               - Línea 99 (exampleStrings_fixed.c): printf ("%s\n",ptr_char);
+          - Resultado de la compilación con código original:
+         <img width="1585" height="320" alt="image" src="https://github.com/user-attachments/assets/07e362d7-a100-407d-adf1-f63fbd7bf92c" />
+         
+          ** NOTA: A este código se le añade un printf para mostrar el contenido de la cadena, ya que sin él se obtiene un Warning:
+          <img width="1585" height="121" alt="image" src="https://github.com/user-attachments/assets/9b6f3888-a91e-40b9-ad2e-466d8d8df4a8" />
+
+
+
+          
+          
+          
+          
+
+     
