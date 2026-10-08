@@ -19,8 +19,11 @@ Practica 1 del curso 2026/2027 de Diseño y Programación Seguras
   - **`exampleStrings.c | exampleStrings_fixed.c`** → archivo fuente que se compila.
   - **`-o exampleStrings | exampleStrings_fixed`** → nombre del ejecutable generado.
 - **Errores y Warnings obtenidos al realizar la 1ª Compilación**:
+  
   <img width="1396" height="880" alt="image" src="https://github.com/user-attachments/assets/328434f1-1031-48f6-a715-14007614fa3e" />
+
 - **Warnings obtenidos al arreglar el error de Raw String de C++**:
+
   <img width="1515" height="446" alt="image" src="https://github.com/user-attachments/assets/f172103b-4825-488e-930e-65a62ab545e1" />
 
 **2) Solución de errores**
@@ -144,12 +147,14 @@ if (snprintf(key, sizeof(key), "%s = %s", argv[1], argv[2]) >= (int)sizeof(key))
         
 ```
 **3) EJEMPLO DE EJECUCIÓN**
+
 <img width="1515" height="1008" alt="Captura desde 2026-10-02 00-32-28" src="https://github.com/user-attachments/assets/e64e9a41-ebbf-484c-b42d-52f988e22970" />
+
 
 
 ***PARTE II — Tests y verificación***
 
-1) Diseño de pruebas
+**1) Diseño de pruebas**
 
 Para esta segunda parte se han seleccionado cuatro problemas diferentes de la auditoría realizada en la Parte I:
 
@@ -163,106 +168,115 @@ Para esta segunda parte se han seleccionado cuatro problemas diferentes de la au
 
 Se han utilizado diferentes técnicas de verificación, principalmente análisis estático y pruebas funcionales con casos límite. Para detectar errores de memoria se ha utilizado AddressSanitizer.
 
-1) STR30-C: Do not attempt to modify String literals.
+1.1) STR30-C: Do not attempt to modify String literals.
    - Problema: ptr_char apunta a un literal de cadena y posteriormente se intenta modificar en la linea 101
    - Test o entrada: ./exampleStrings_fixed cadena1 cadena2
    - Técnica: Añadir al comando de compilación la función -fanalyzer, para realizar un análisis estático de código
    - Código original:
-     ```c
-     - Línea 67 (exampleStrings.c):  char *ptr_char  = "new string literal"; 
-     - Línea 101 (exampleStrings.c): ptr_char [0] = 'N';
-     ```
+     
+          - Línea 67 (exampleStrings.c):  char *ptr_char  = "new string literal"; 
+          - Línea 101 (exampleStrings.c): ptr_char [0] = 'N';
+     
    - Resultado de la compilación con código original:
 
-<img width="531" height="91" alt="Captura desde 2026-10-08 15-33-46" src="https://github.com/user-attachments/assets/82b2ba18-5271-4a4e-9aa5-aa0f801478e3" />
+   <img width="531" height="91" alt="Captura desde 2026-10-08 15-33-46" src="https://github.com/user-attachments/assets/82b2ba18-5271-4a4e-9aa5-aa0f801478e3" />
 
    - Código corregido:
-     ```c
-     - Línea 70 (exampleStrings_fixed.c): char ptr_char [] = "new string literal"; 
-     - Línea 98 (exampleStrings_fixed.c): ptr_char [0] = 'N';
-     - Línea 99 (exampleStrings_fixed.c): printf ("%s\n",ptr_char);
-     ```
+     
+          - Línea 70 (exampleStrings_fixed.c): char ptr_char [] = "new string literal"; 
+          - Línea 98 (exampleStrings_fixed.c): ptr_char [0] = 'N';
+          - Línea 99 (exampleStrings_fixed.c): printf ("%s\n",ptr_char);
+     
    - Resultado de la compilación con código corregido:
 
-<img width="1585" height="320" alt="Captura desde 2026-10-08 15-47-00" src="https://github.com/user-attachments/assets/85405c54-db48-4e73-ae6a-29cebee3e4e8" />
+     <img width="1585" height="320" alt="Captura desde 2026-10-08 15-47-00" src="https://github.com/user-attachments/assets/85405c54-db48-4e73-ae6a-29cebee3e4e8" />
 
    ** NOTA: A este código se le añade un printf para mostrar el contenido de la cadena, ya que sin él se obtiene un Warning:
+   
+   <img width="1585" height="121" alt="Captura desde 2026-10-08 15-48-06" src="https://github.com/user-attachments/assets/f66bd6f7-66b6-4a1b-907d-688a5e99429f" />
 
-<img width="1585" height="121" alt="Captura desde 2026-10-08 15-48-06" src="https://github.com/user-attachments/assets/f66bd6f7-66b6-4a1b-907d-688a5e99429f" />
 
-2) STR35-C: Do not copy data from an unbounded source to a fixed length array
-     - Problema: La función strcpy() no recibe información sobre el tamaño de key, por lo que una entrada suficientemente larga 
+1.2) STR35-C: Do not copy data from an unbounded source to a fixed length array
+
+
+   - Problema: La función strcpy() no recibe información sobre el tamaño de key, por lo que una entrada suficientemente larga 
           puede provocar un buffer overflow.
-     - Test o entrada:
-          ```c
+   - Test o entrada:
+          
                - gcc -Wall -Wextra -g -fsanitize=address,undefined [archivo].c -o e[archivo]_asan
                - ./[archivo] " ,/[archivo]_asan "$(python3 -c "print('A' * 511)")" "$(python3 -c "print('B' * 511)")"
-           ```
-     - Técnica: Utilización de AddressSanitizer y UndefinedBehaviorSanitizer en la compilación y entradas tanto normales como de situaciones límite
-     - Código original:
+           
+   - Técnica: Utilización de AddressSanitizer y UndefinedBehaviorSanitizer en la compilación y entradas tanto normales como de situaciones límite
+   - Código original:
           
-               ```c
+               
                 - Línea 78 (exampleStrings.c):  strcpy(key, argv[1]);
-               ```
-          - Código corregido:
-               ```c
+               
+   - Código corregido:
+              
                - Línea 75 (exampleStrings_fixed.c): if (snprintf(key, sizeof(key), "%s = %s", argv[1], argv[2]) >= (int)sizeof(key)) {
                - Línea 76 (exampleStrings_fixed.c):       fprintf(stderr,"snprintf() error - Key too long\n");
                - Línea 77 (exampleStrings_fixed.c):       return 1;
-               ```
-- Comparación entre código anterior y código corregido:
-  <img width="1570" height="1104" alt="image" src="https://github.com/user-attachments/assets/4ffc9665-57c5-4ed9-9496-2fb61eadb07e" />
+               
+   - Comparación entre código anterior y código corregido:
 
-  3) STR31-C: Guarantee that storage for strings has sufficient space for character data and the null terminator y
+     
+     <img width="1570" height="1104" alt="image" src="https://github.com/user-attachments/assets/4ffc9665-57c5-4ed9-9496-2fb61eadb07e" />
+
+  1.3) STR31-C: Guarantee that storage for strings has sufficient space for character data and the null terminator y
        STR32-C. Do not pass a non-null-terminated character sequence to a library function that expects a string.
-     - Problema: array3 tiene 16 bytes, pero strncpy() copia 16 caracteres, sin garantizar espacio para el terminador '\0'. 
+       
+   - Problema: array3 tiene 16 bytes, pero strncpy() copia 16 caracteres, sin garantizar espacio para el terminador '\0'. 
        Posteriormente se utiliza strlen(array3), que requiere una cadena terminada en '\0'.
-     - Test o entrada:
-          ```c
+   - Test o entrada:
+          
                - gcc -Wall -Wextra -g -fsanitize=address,undefined [archivo]_fixed.c -o [archivo]_asan
                - ./[archivo]_str**" ,/[archivo]_asan "$(python3 -c "print('A' * 511)")" "$(python3 -c "print('B' * 511)")"
-           ```
-     - Técnica: Utilización de AddressSanitizer y UndefinedBehaviorSanitizer en la compilación y entradas tanto normales como de situaciones límite
-     - Código original:
+           
+   - Técnica: Utilización de AddressSanitizer y UndefinedBehaviorSanitizer en la compilación y entradas tanto normales como de situaciones límite
+   - Código original:
           
-               ```c
+               `
                 - Línea 97 (exampleStrings.c):  strncpy(array3, array5, sizeof(array3));
                 - Línea 98 (exampleStrings.c):  strncpy(array4, array3, sizeof(array3));
-               ```
-          - Código corregido:
+               
+   - Código corregido:
             
-               ```c
+               
                - Línea 91 (exampleStrings_fixed.c): strncpy(array3, array5, sizeof(array3)-1)
                - Línea 92 (exampleStrings_fixed.c): array3[sizeof(array3) - 1] = '\0';
 
                - Línea 95 (exampleStrings_fixed.c): strncpy(array4, array3, sizeof(array4) - 1);
                - Línea 96 (exampleStrings_fixed.c): array4[sizeof(array4) - 1] = '\0';
-               ```
                
-- Comparación entre código anterior y código corregido:
-  <img width="1570" height="942" alt="image" src="https://github.com/user-attachments/assets/5820b1f3-7ade-4b23-8038-aef3dae55755" />
-  <img width="1570" height="602" alt="image" src="https://github.com/user-attachments/assets/edf5fa2b-c7bb-4d42-b962-14eb4834f143" />
+               
+   - Comparación entre código anterior y código corregido:
+     <img width="1570" height="942" alt="image" src="https://github.com/user-attachments/assets/5820b1f3-7ade-4b23-8038-aef3dae55755" />
+     <img width="1570" height="602" alt="image" src="https://github.com/user-attachments/assets/edf5fa2b-c7bb-4d42-b962-14eb4834f143" />
 
-  4) MSC24-C. Do not use deprecated or obsolescent functions
-     - Problema: array3 tiene 16 bytes, pero strncpy() copia 16 caracteres, sin garantizar espacio para el terminador '\0'. 
+  1.4) MSC24-C. Do not use deprecated or obsolescent functions
+     
+   - Problema: array3 tiene 16 bytes, pero strncpy() copia 16 caracteres, sin garantizar espacio para el terminador '\0'. 
        Posteriormente se utiliza strlen(array3), que requiere una cadena terminada en '\0'.
-     - Test o entrada:
-          ```c
+   - Test o entrada:
+          
                - gcc -Wall -Wextra -g -fsanitize=address,undefined [archivo]_fixed.c -o [archivo]_asan
                - ./[archivo]_str**" ,/[archivo]_asan "$(python3 -c "print('A' * 511)")" "$(python3 -c "print('B' * 511)")"
-           ```
-     - Técnica: Utilización de AddressSanitizer y UndefinedBehaviorSanitizer en la compilación y entradas tanto normales como de situaciones límite
-     - Código original:
+           
+   - Técnica: Utilización de AddressSanitizer y UndefinedBehaviorSanitizer en la compilación y entradas tanto normales como de situaciones límite
+   - Código original:
           
-               ```c
+               
                 - Línea 48 (exampleStrings.c):  gets(response);
-               ```
-          - Código corregido:
-               ```c
+               
+   - Código corregido:
+               
                - Línea 32 (exampleStrings_fixed.c): fgets(response, sizeof(response), stdin);
-               ```
-- Comparación entre código anterior y código corregido:
-  <img width="1570" height="488" alt="image" src="https://github.com/user-attachments/assets/f063fddb-725e-4bd0-be42-8884bc2baa2a" />
+               
+   - Comparación entre código anterior y código corregido:
+
+  
+       <img width="1570" height="488" alt="image" src="https://github.com/user-attachments/assets/f063fddb-725e-4bd0-be42-8884bc2baa2a" />
 
   
 ***PARTE III — Declaración de uso de IA***
