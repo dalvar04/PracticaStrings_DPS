@@ -159,16 +159,19 @@ if (snprintf(key, sizeof(key), "%s = %s", argv[1], argv[2]) >= (int)sizeof(key))
                - Línea 67 (exampleStrings.c):  char *ptr_char  = "new string literal"; 
                - Línea 101 (exampleStrings.c): ptr_char [0] = 'N';
           - Resultado de la compilación con código original:
-          <img width="531" height="91" alt="image" src="https://github.com/user-attachments/assets/1e3a2acb-d23e-47fb-9596-3f08b790a21f" />
+          <img width="531" height="91" alt="Captura desde 2026-10-08 15-33-46" src="https://github.com/user-attachments/assets/82b2ba18-5271-4a4e-9aa5-aa0f801478e3" />
+
           - Código corregido:
                - Línea 70 (exampleStrings_fixed.c): char ptr_char [] = "new string literal"; 
                - Línea 98 (exampleStrings_fixed.c): ptr_char [0] = 'N';
                - Línea 99 (exampleStrings_fixed.c): printf ("%s\n",ptr_char);
-          - Resultado de la compilación con código original:
-         <img width="1585" height="320" alt="image" src="https://github.com/user-attachments/assets/07e362d7-a100-407d-adf1-f63fbd7bf92c" />
+          - Resultado de la compilación con código corregido:
+         <img width="1585" height="320" alt="Captura desde 2026-10-08 15-47-00" src="https://github.com/user-attachments/assets/85405c54-db48-4e73-ae6a-29cebee3e4e8" />
+
          
           ** NOTA: A este código se le añade un printf para mostrar el contenido de la cadena, ya que sin él se obtiene un Warning:
-          <img width="1585" height="121" alt="image" src="https://github.com/user-attachments/assets/9b6f3888-a91e-40b9-ad2e-466d8d8df4a8" />
+          <img width="1585" height="121" alt="Captura desde 2026-10-08 15-48-06" src="https://github.com/user-attachments/assets/f66bd6f7-66b6-4a1b-907d-688a5e99429f" />
+
 
 
 
