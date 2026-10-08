@@ -173,17 +173,17 @@ Para esta segunda parte se han seleccionado cuatro problemas diferentes de la au
 Se han utilizado diferentes técnicas de verificación, principalmente análisis estático y pruebas funcionales con casos límite. Para detectar errores de memoria se ha utilizado AddressSanitizer.
 
 1.1) STR30-C: Do not attempt to modify String literals.
-   - Problema: ptr_char apunta a un literal de cadena y posteriormente se intenta modificar en la linea 101
+   - Problema: ptr_char apunta a un literal de cadena que posteriormente se intenta modificar en la linea 101
    - Test o entrada:
-     -        gcc -std=c11 -Wall -Wextra -Wpedantic -fanalyzer exampleStrings.c -o exampleStrings
-     -       ./exampleStrings_fixed cadena1 cadena2
+     -      Para analizar el código original: gcc -std=c11 -Wall -Wextra -Wpedantic -fanalyzer exampleStrings.c -o exampleStrings
+     -      Para analizar el código modificado: gcc -std=c11 -Wall -Wextra -Wpedantic -fanalyzer exampleStrings_fixed.c -o exampleStrings_fixed
    - Técnica: Añadir al comando de compilación la función -fanalyzer, para realizar un análisis estático de código
    - Código original:
      
           - Línea 67 (exampleStrings.c):  char *ptr_char  = "new string literal"; 
           - Línea 101 (exampleStrings.c): ptr_char [0] = 'N';
      
-   - Resultado de la compilación con código original:
+   - Resultado de la compilación con código original: El análisis estático detecta el problema en el código original y no detecta el mismo problema en el código corregido.
 
    <img width="531" height="91" alt="Captura desde 2026-10-08 15-33-46" src="https://github.com/user-attachments/assets/82b2ba18-5271-4a4e-9aa5-aa0f801478e3" />
    
@@ -215,7 +215,7 @@ Se han utilizado diferentes técnicas de verificación, principalmente análisis
                - gcc -Wall -Wextra -g -fsanitize=address,undefined [archivo].c -o e[archivo]_asan
                - ./[archivo] " ,/[archivo]_asan "$(python3 -c "print('A' * 511)")" "$(python3 -c "print('B' * 511)")"
            
-   - Técnica: Utilización de AddressSanitizer y UndefinedBehaviorSanitizer en la compilación y entradas tanto normales como de situaciones límite
+   - Técnica: Se realiza una prueba funcional, utilizando AddressSanitizer y UndefinedBehaviorSanitizer en la compilación. Además, en la ejecución se utilizan entradas tanto normales como de situaciones límite
    - Código original:
           
                
@@ -227,7 +227,7 @@ Se han utilizado diferentes técnicas de verificación, principalmente análisis
                - Línea 76 (exampleStrings_fixed.c):       fprintf(stderr,"snprintf() error - Key too long\n");
                - Línea 77 (exampleStrings_fixed.c):       return 1;
                
-   - Comparación entre código anterior y código corregido:
+   - Comparación entre código anterior y código corregido: Mientras que con el código original, una entrada suficientemente grande provoca un desbordamiento del buffer, con el código modificado, el programa detecta que la entrada es demasiado larga y la rechaza de forma controlada.
 
      
      <img width="1570" height="1104" alt="image" src="https://github.com/user-attachments/assets/4ffc9665-57c5-4ed9-9496-2fb61eadb07e" />
@@ -244,7 +244,7 @@ Se han utilizado diferentes técnicas de verificación, principalmente análisis
                - gcc -Wall -Wextra -g -fsanitize=address,undefined [archivo]_fixed.c -o [archivo]_asan
                - ./[archivo]_str**" ,/[archivo]_asan "$(python3 -c "print('A' * 511)")" "$(python3 -c "print('B' * 511)")"
            
-   - Técnica: Utilización de AddressSanitizer y UndefinedBehaviorSanitizer en la compilación y entradas tanto normales como de situaciones límite
+   - Técnica: Se utiliza una prueba funcional con un caso límite y AddressSanitizer.
    - Código original:
           
                `
@@ -261,7 +261,7 @@ Se han utilizado diferentes técnicas de verificación, principalmente análisis
                - Línea 96 (exampleStrings_fixed.c): array4[sizeof(array4) - 1] = '\0';
                
                
-   - Comparación entre código anterior y código corregido:
+   - Comparación entre código anterior y código corregido: El test ejecuta ambas versiones con los mismos argumentos y permite comprobar que el problema se produce en la versión original y no en la corregida.
      <img width="1570" height="942" alt="image" src="https://github.com/user-attachments/assets/5820b1f3-7ade-4b23-8038-aef3dae55755" />
      <img width="1570" height="602" alt="image" src="https://github.com/user-attachments/assets/edf5fa2b-c7bb-4d42-b962-14eb4834f143" />
 
@@ -269,24 +269,23 @@ Se han utilizado diferentes técnicas de verificación, principalmente análisis
 
   1.4) MSC24-C. Do not use deprecated or obsolescent functions
      
-   - Problema: array3 tiene 16 bytes, pero strncpy() copia 16 caracteres, sin garantizar espacio para el terminador '\0'. 
-       Posteriormente se utiliza strlen(array3), que requiere una cadena terminada en '\0'.
+   - Problema: La función gets() no recibe el tamaño del buffer, por lo que no puede limitar la cantidad de caracteres que escribe en response. Si se introduce una cadena suficientemente larga, puede producirse un desbordamiento del buffer.
    - Test o entrada:
           
                - gcc -Wall -Wextra -g -fsanitize=address,undefined [archivo]_fixed.c -o [archivo]_asan
                - ./[archivo]_str**" ,/[archivo]_asan "$(python3 -c "print('A' * 511)")" "$(python3 -c "print('B' * 511)")"
            
-   - Técnica: Utilización de AddressSanitizer y UndefinedBehaviorSanitizer en la compilación y entradas tanto normales como de situaciones límite
+   - Técnica: Se utiliza una prueba funcional con un caso límite y AddressSanitizer.
    - Código original:
           
                
                 - Línea 48 (exampleStrings.c):  gets(response);
                
-   - Código corregido:
+   - Código corregido: 
                
                - Línea 32 (exampleStrings_fixed.c): fgets(response, sizeof(response), stdin);
                
-   - Comparación entre código anterior y código corregido:
+   - Comparación entre código anterior y código corregido: Mientras que con el código original, se puedouce un desbordamiento de buffer, fgets() limita la cantidad de datos almacenados en response, evitando el desbordamiento.
 
   
        <img width="1570" height="488" alt="image" src="https://github.com/user-attachments/assets/f063fddb-725e-4bd0-be42-8884bc2baa2a" />
