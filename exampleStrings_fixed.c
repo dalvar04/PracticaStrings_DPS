@@ -22,8 +22,9 @@ void get_dirname(void) {
 }
  
 void get_y_or_n(void) {  
-	char response[8];
-  int counter=0;
+	
+    char response[8];
+    int counter=0;
 
 	do {
         printf("Continue? [y] n: ");
@@ -51,18 +52,24 @@ void get_y_or_n(void) {
 
 }
 
+void get_parameters(int params){
+    
+    if(params != 3) {
+        printf("Usage: <executable> <param1> <param2>\n");
+        exit (1);
+    }
+}
+
 int main(int argc, char *argv[]){
 
-    if(argc != 3) {
-        printf("Usage: %s <key> <value>\n", argv[0]);
-        return 1;
-    }
 
     char key[MAX_SIZE];
     char array3[16];
     char array4[16];
     char array5 []  = "01234567890123456";
+    char ptr_char [] = "new string literal";
 
+    get_parameters(argc);
     get_dirname();
   
     if (snprintf(key, sizeof(key), "%s = %s", argv[1], argv[2]) >= (int)sizeof(key)) {
@@ -88,6 +95,8 @@ int main(int argc, char *argv[]){
     strncpy(array4, array3, sizeof(array4) - 1);
     array4[sizeof(array4) - 1] = '\0';
     
+    ptr_char [0] = 'N';
+    printf ("%s\n",ptr_char);
     array5 [0] = 'M';
 
     return 0;
