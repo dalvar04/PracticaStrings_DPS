@@ -301,6 +301,8 @@ Se han utilizado diferentes técnicas de verificación, principalmente análisis
 
   **2) Tests automatizados**
      Se han creado pruebas automatizadas en el directorio `tests/` para comprobar el comportamiento de las versiones original y corregida.
+     Cada prueba incluye, cuando es aplicable, tanto un caso normal con una entrada válida como un caso límite diseñado para provocar o detectar el problema de seguridad.
+     En los tests de STR35-C y MSC24-C, las entradas normales son válidas y no provocan directamente el problema que se está analizando. Sin embargo, en el programa original, la ejecución            posterior alcanza el fallo correspondiente a STR31-C/STR32-C, por lo que el programa no puede finalizar correctamente. Por este motivo, en estos casos, el resultado de la ejecución              completa del programa original no se utiliza como indicador de la corrección de STR35-C o MSC24-C, sino que se analiza específicamente el comportamiento relacionado con cada vulnerabilidad.
      
    2.1) ### STR35-C
    
