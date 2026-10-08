@@ -149,9 +149,7 @@ if (snprintf(key, sizeof(key), "%s = %s", argv[1], argv[2]) >= (int)sizeof(key))
 
 ***PARTE II — Tests y verificación***
 
-**1) Diseño de pruebas:**
-
-     1.1) STR30-C: Do not attempt to modify String literals.
+     1) STR30-C: Do not attempt to modify String literals.
           - Problema: ptr_char apunta a un literal de cadena y posteriormente se intenta modificar en la linea 101
           - Test o entrada: ./exampleStrings_fixed cadena1 cadena2
           - Técnica: Añadir al comando de compilación la función -fanalyzer, para realizar un análisis estático de código
@@ -172,6 +170,98 @@ if (snprintf(key, sizeof(key), "%s = %s", argv[1], argv[2]) >= (int)sizeof(key))
           ** NOTA: A este código se le añade un printf para mostrar el contenido de la cadena, 
           ya que sin él se obtiene un Warning:
 <img width="1585" height="121" alt="Captura desde 2026-10-08 15-48-06" src="https://github.com/user-attachments/assets/f66bd6f7-66b6-4a1b-907d-688a5e99429f" />
+
+2) STR35-C: Do not copy data from an unbounded source to a fixed length array
+     - Problema: La función strcpy() no recibe información sobre el tamaño de key, por lo que una entrada suficientemente larga 
+          puede provocar un buffer overflow.
+     - Test o entrada:
+          ```c
+               - gcc -Wall -Wextra -g -fsanitize=address,undefined [archivo].c -o e[archivo]_asan
+               - ./[archivo] " ,/[archivo]_asan "$(python3 -c "print('A' * 511)")" "$(python3 -c "print('B' * 511)")"
+           ```
+     - Técnica: Utilización de AddressSanitizer y UndefinedBehaviorSanitizer en la compilación y entradas tanto normales como de situaciones límite
+     - Código original:
+          
+               ```c
+                - Línea 78 (exampleStrings.c):  strcpy(key, argv[1]);
+               ```
+          - Código corregido:
+               ```c
+               - Línea 75 (exampleStrings_fixed.c): if (snprintf(key, sizeof(key), "%s = %s", argv[1], argv[2]) >= (int)sizeof(key)) {
+               - Línea 76 (exampleStrings_fixed.c):       fprintf(stderr,"snprintf() error - Key too long\n");
+               - Línea 77 (exampleStrings_fixed.c):       return 1;
+               ```
+- Comparación entre código anterior y código corregido:
+  <img width="1570" height="1104" alt="image" src="https://github.com/user-attachments/assets/4ffc9665-57c5-4ed9-9496-2fb61eadb07e" />
+
+  3) STR31-C: Guarantee that storage for strings has sufficient space for character data and the null terminator y
+       STR32-C. Do not pass a non-null-terminated character sequence to a library function that expects a string.
+     - Problema: array3 tiene 16 bytes, pero strncpy() copia 16 caracteres, sin garantizar espacio para el terminador '\0'. 
+       Posteriormente se utiliza strlen(array3), que requiere una cadena terminada en '\0'.
+     - Test o entrada:
+          ```c
+               - gcc -Wall -Wextra -g -fsanitize=address,undefined [archivo]_fixed.c -o [archivo]_asan
+               - ./[archivo]_str**" ,/[archivo]_asan "$(python3 -c "print('A' * 511)")" "$(python3 -c "print('B' * 511)")"
+           ```
+     - Técnica: Utilización de AddressSanitizer y UndefinedBehaviorSanitizer en la compilación y entradas tanto normales como de situaciones límite
+     - Código original:
+          
+               ```c
+                - Línea 97 (exampleStrings.c):  strncpy(array3, array5, sizeof(array3));
+                - Línea 98 (exampleStrings.c):  strncpy(array4, array3, sizeof(array3));
+               ```
+          - Código corregido:
+          - 
+               ```c
+               - Línea 91 (exampleStrings_fixed.c): strncpy(array3, array5, sizeof(array3)-1)
+               - Línea 92 (exampleStrings_fixed.c): array3[sizeof(array3) - 1] = '\0';
+
+               - Línea 95 (exampleStrings_fixed.c): strncpy(array4, array3, sizeof(array4) - 1);
+               - Línea 96 (exampleStrings_fixed.c): array4[sizeof(array4) - 1] = '\0';
+               ```
+               
+- Comparación entre código anterior y código corregido:
+  <img width="1570" height="942" alt="image" src="https://github.com/user-attachments/assets/5820b1f3-7ade-4b23-8038-aef3dae55755" />
+  <img width="1570" height="602" alt="image" src="https://github.com/user-attachments/assets/edf5fa2b-c7bb-4d42-b962-14eb4834f143" />
+
+  4) MSC24-C. Do not use deprecated or obsolescent functions
+     - Problema: array3 tiene 16 bytes, pero strncpy() copia 16 caracteres, sin garantizar espacio para el terminador '\0'. 
+       Posteriormente se utiliza strlen(array3), que requiere una cadena terminada en '\0'.
+     - Test o entrada:
+          ```c
+               - gcc -Wall -Wextra -g -fsanitize=address,undefined [archivo]_fixed.c -o [archivo]_asan
+               - ./[archivo]_str**" ,/[archivo]_asan "$(python3 -c "print('A' * 511)")" "$(python3 -c "print('B' * 511)")"
+           ```
+     - Técnica: Utilización de AddressSanitizer y UndefinedBehaviorSanitizer en la compilación y entradas tanto normales como de situaciones límite
+     - Código original:
+          
+               ```c
+                - Línea 48 (exampleStrings.c):  gets(response);
+               ```
+          - Código corregido:
+               ```c
+               - Línea 32 (exampleStrings_fixed.c): fgets(response, sizeof(response), stdin);
+               ```
+- Comparación entre código anterior y código corregido:
+  <img width="1570" height="488" alt="image" src="https://github.com/user-attachments/assets/f063fddb-725e-4bd0-be42-8884bc2baa2a" />
+
+  
+***PARTE III — Declaración de uso de IA***
+
+- **Herramienta utilizada: ChatGPT (GPT-5.6 Luna).** 
+- **Tareas para las que se utilizó**
+     - Identificación y explicación de problemas relacionados con las reglas CERT C seleccionadas.
+     - Correcciones en las mejoras de código propuestas
+     - Explicación del uso de AddressSanitizer (-fsanitize=address,undefined) y de system() para automatizar las pruebas.
+     - Generación de casos de pruebas, incluyendo ejemplos de casos de entrada límite
+     - Mejoras en el README.md (ortográficas, correcciones en el código Markdown...)
+- **Cómo se verificaron sus respuestas**
+     - Las propuestas realizadas se comprobaron compilando y ejecutando los programas en el entorno de trabajo,
+       mediante la ejecución de la misma entrada para los archivos original y modificado
+- **Ejemplo relevante de utilización:** Para comprobar STR35-C, se solicitó ayuda para diseñar un caso límite que provocase un desbordamiento del buffer key.
+- Se utilizó la siguiente entrada: ./exampleStrings_asan "$(python3 -c "print('A' * 511)")" "$(python3 -c "print('B' * 511)")"
+- **Tiempo necesario para realizar este ejercicio: Aproximadamente 15 horas entre ambas partes**       
+             
 
 
 
