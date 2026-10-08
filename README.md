@@ -304,17 +304,17 @@ Se han utilizado diferentes técnicas de verificación, principalmente análisis
      Cada prueba incluye, cuando es aplicable, tanto un caso normal con una entrada válida como un caso límite diseñado para provocar o detectar el problema de seguridad.
      En los tests de STR35-C y MSC24-C, las entradas normales son válidas y no provocan directamente el problema que se está analizando. Sin embargo, en el programa original, la ejecución            posterior alcanza el fallo correspondiente a STR31-C/STR32-C, por lo que el programa no puede finalizar correctamente. Por este motivo, en estos casos, el resultado de la ejecución              completa del programa original no se utiliza como indicador de la corrección de STR35-C o MSC24-C, sino que se analiza específicamente el comportamiento relacionado con cada vulnerabilidad.
      
-   2.1) ### STR35-C
+   2.1) STR35-C
    
      - gcc -Wall -Wextra -g tests/test_str35.c -o tests/test_str35
      - ./tests/test_str35
 
-   2.2) ### STR31-C y STR32-C
+   2.2) STR31-C y STR32-C
    
      - gcc -Wall -Wextra -g tests/test_str31_str32.c -o tests/test_str31_str32
      - ./tests/test_str31_str32
    
-   2.3) ### MSC24-C
+   2.3) MSC24-C
 
      - gcc -Wall -Wextra -g tests/test_msc24.c -o tests/test_msc24
      - ./tests/test_msc24
