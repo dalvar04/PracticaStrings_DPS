@@ -311,8 +311,8 @@ Se han utilizado diferentes técnicas de verificación, principalmente análisis
 
    2.2) STR31-C y STR32-C
    
-     - gcc -Wall -Wextra -g tests/test_str31_str32.c -o tests/test_str31_str32
-     - ./tests/test_str31_str32
+     - gcc -Wall -Wextra -g tests/test_str31_32.c -o tests/test_str31_32
+     - ./tests/test_str31_32
    
    2.3) MSC24-C
 
