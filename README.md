@@ -152,6 +152,10 @@ if (snprintf(key, sizeof(key), "%s = %s", argv[1], argv[2]) >= (int)sizeof(key))
 
 
 
+
+
+
+
 ***PARTE II — Tests y verificación***
 
 **1) Diseño de pruebas**
@@ -170,7 +174,9 @@ Se han utilizado diferentes técnicas de verificación, principalmente análisis
 
 1.1) STR30-C: Do not attempt to modify String literals.
    - Problema: ptr_char apunta a un literal de cadena y posteriormente se intenta modificar en la linea 101
-   - Test o entrada: ./exampleStrings_fixed cadena1 cadena2
+   - Test o entrada:
+     -        gcc -std=c11 -Wall -Wextra -Wpedantic -fanalyzer exampleStrings.c -o exampleStrings
+     -       ./exampleStrings_fixed cadena1 cadena2
    - Técnica: Añadir al comando de compilación la función -fanalyzer, para realizar un análisis estático de código
    - Código original:
      
@@ -180,6 +186,7 @@ Se han utilizado diferentes técnicas de verificación, principalmente análisis
    - Resultado de la compilación con código original:
 
    <img width="531" height="91" alt="Captura desde 2026-10-08 15-33-46" src="https://github.com/user-attachments/assets/82b2ba18-5271-4a4e-9aa5-aa0f801478e3" />
+   
 
    - Código corregido:
      
@@ -190,10 +197,12 @@ Se han utilizado diferentes técnicas de verificación, principalmente análisis
    - Resultado de la compilación con código corregido:
 
      <img width="1585" height="320" alt="Captura desde 2026-10-08 15-47-00" src="https://github.com/user-attachments/assets/85405c54-db48-4e73-ae6a-29cebee3e4e8" />
+     
 
    ** NOTA: A este código se le añade un printf para mostrar el contenido de la cadena, ya que sin él se obtiene un Warning:
    
    <img width="1585" height="121" alt="Captura desde 2026-10-08 15-48-06" src="https://github.com/user-attachments/assets/f66bd6f7-66b6-4a1b-907d-688a5e99429f" />
+   
 
 
 1.2) STR35-C: Do not copy data from an unbounded source to a fixed length array
@@ -222,6 +231,8 @@ Se han utilizado diferentes técnicas de verificación, principalmente análisis
 
      
      <img width="1570" height="1104" alt="image" src="https://github.com/user-attachments/assets/4ffc9665-57c5-4ed9-9496-2fb61eadb07e" />
+
+     
 
   1.3) STR31-C: Guarantee that storage for strings has sufficient space for character data and the null terminator y
        STR32-C. Do not pass a non-null-terminated character sequence to a library function that expects a string.
@@ -253,6 +264,8 @@ Se han utilizado diferentes técnicas de verificación, principalmente análisis
    - Comparación entre código anterior y código corregido:
      <img width="1570" height="942" alt="image" src="https://github.com/user-attachments/assets/5820b1f3-7ade-4b23-8038-aef3dae55755" />
      <img width="1570" height="602" alt="image" src="https://github.com/user-attachments/assets/edf5fa2b-c7bb-4d42-b962-14eb4834f143" />
+
+     
 
   1.4) MSC24-C. Do not use deprecated or obsolescent functions
      
