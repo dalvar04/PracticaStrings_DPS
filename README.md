@@ -194,7 +194,7 @@ Se han utilizado diferentes técnicas de verificación, principalmente análisis
           - Línea 98 (exampleStrings_fixed.c): ptr_char [0] = 'N';
           - Línea 99 (exampleStrings_fixed.c): printf ("%s\n",ptr_char);
      
-   - Resultado de la compilación con código corregido:
+   - Resultado de la compilación con código corregido: Mientras que el análisis estático detecta el intento de modificar un literal de cadena con el código original, al modificar el código uya no se aprecia este fallo 
 
      <img width="1585" height="320" alt="Captura desde 2026-10-08 15-47-00" src="https://github.com/user-attachments/assets/85405c54-db48-4e73-ae6a-29cebee3e4e8" />
      
@@ -211,9 +211,12 @@ Se han utilizado diferentes técnicas de verificación, principalmente análisis
    - Problema: La función strcpy() no recibe información sobre el tamaño de key, por lo que una entrada suficientemente larga 
           puede provocar un buffer overflow.
    - Test o entrada:
-          
-               - gcc -Wall -Wextra -g -fsanitize=address,undefined [archivo].c -o e[archivo]_asan
-               - ./[archivo] " ,/[archivo]_asan "$(python3 -c "print('A' * 511)")" "$(python3 -c "print('B' * 511)")"
+     
+               - gcc -Wall -Wextra -g -fsanitize=address,undefined exampleStrings.c -o exampleStrings_asan
+               - gcc -Wall -Wextra -g -fsanitize=address,undefined exampleStrings_fixed.c -o exampleStrings_fixed_asan
+
+               - ./exampleStrings_asan "$(python3 -c "print('A' * 511)")" "$(python3 -c "print('B' * 511)")"
+               - ./exampleStrings_fixed_asan "$(python3 -c "print('A' * 511)")" "$(python3 -c "print('B' * 511)")"
            
    - Técnica: Se realiza una prueba funcional, utilizando AddressSanitizer y UndefinedBehaviorSanitizer en la compilación. Además, en la ejecución se utilizan entradas tanto normales como de situaciones límite
    - Código original:
@@ -241,15 +244,18 @@ Se han utilizado diferentes técnicas de verificación, principalmente análisis
        Posteriormente se utiliza strlen(array3), que requiere una cadena terminada en '\0'.
    - Test o entrada:
           
-               - gcc -Wall -Wextra -g -fsanitize=address,undefined [archivo]_fixed.c -o [archivo]_asan
-               - ./[archivo]_str**" ,/[archivo]_asan "$(python3 -c "print('A' * 511)")" "$(python3 -c "print('B' * 511)")"
+               - gcc -Wall -Wextra -g -fsanitize=address,undefined exampleStrings.c -o exampleStrings_asan
+               - gcc -Wall -Wextra -g -fsanitize=address,undefined exampleStrings_fixed.c -o exampleStrings_fixed_asan
+
+               - ./exampleStrings_asan hola mundo
+               - ./exampleStrings_fixed_asan hola mundo
            
    - Técnica: Se utiliza una prueba funcional con un caso límite y AddressSanitizer.
    - Código original:
           
                `
                 - Línea 97 (exampleStrings.c):  strncpy(array3, array5, sizeof(array3));
-                - Línea 98 (exampleStrings.c):  strncpy(array4, array3, sizeof(array3));
+                - Línea 98 (exampleStrings.c):  strncpy(array4, array3, strlen(array3));
                
    - Código corregido:
             
@@ -272,8 +278,11 @@ Se han utilizado diferentes técnicas de verificación, principalmente análisis
    - Problema: La función gets() no recibe el tamaño del buffer, por lo que no puede limitar la cantidad de caracteres que escribe en response. Si se introduce una cadena suficientemente larga, puede producirse un desbordamiento del buffer.
    - Test o entrada:
           
-               - gcc -Wall -Wextra -g -fsanitize=address,undefined [archivo]_fixed.c -o [archivo]_asan
-               - ./[archivo]_str**" ,/[archivo]_asan "$(python3 -c "print('A' * 511)")" "$(python3 -c "print('B' * 511)")"
+               - gcc -Wall -Wextra -g -fsanitize=address,undefined exampleStrings.c -o exampleStrings_asan
+               - gcc -Wall -Wextra -g -fsanitize=address,undefined exampleStrings_fixed.c -o exampleStrings_fixed_asan
+
+               - python3 -c "print('A' * 100)" | ./exampleStrings_asan hola mundo
+               - python3 -c "print('A' * 100)" | ./exampleStrings_fixed_asan hola mundo
            
    - Técnica: Se utiliza una prueba funcional con un caso límite y AddressSanitizer.
    - Código original:
@@ -285,12 +294,29 @@ Se han utilizado diferentes técnicas de verificación, principalmente análisis
                
                - Línea 32 (exampleStrings_fixed.c): fgets(response, sizeof(response), stdin);
                
-   - Comparación entre código anterior y código corregido: Mientras que con el código original, se puedouce un desbordamiento de buffer, fgets() limita la cantidad de datos almacenados en response, evitando el desbordamiento.
+   - Comparación entre código anterior y código corregido: Mientras que con el código original, se produce un desbordamiento de buffer, fgets() limita la cantidad de datos almacenados en response, evitando el desbordamiento.
 
   
        <img width="1570" height="488" alt="image" src="https://github.com/user-attachments/assets/f063fddb-725e-4bd0-be42-8884bc2baa2a" />
 
-  
+  **2) Tests automatizados**
+     Se han creado pruebas automatizadas en el directorio `tests/` para comprobar el comportamiento de las versiones original y corregida.
+     
+   2.1) ### STR35-C
+   
+     - gcc -Wall -Wextra -g tests/test_str35.c -o tests/test_str35
+     - ./tests/test_str35
+
+   2.2) ### STR31-C y STR32-C
+   
+     - gcc -Wall -Wextra -g tests/test_str31_str32.c -o tests/test_str31_str32
+     - ./tests/test_str31_str32
+   
+   2.3) ### MSC24-C
+
+     - gcc -Wall -Wextra -g tests/test_msc24.c -o tests/test_msc24
+     - ./tests/test_msc24
+     
 ***PARTE III — Declaración de uso de IA***
 
 - **Herramienta utilizada: ChatGPT (GPT-5.6 Luna).** 
