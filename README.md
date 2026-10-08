@@ -18,9 +18,9 @@ Practica 1 del curso 2026/2027 de Diseño y Programación Seguras
   - **`-Wpedantic`** → avisa sobre construcciones que no cumplen estrictamente el estándar seleccionado.
   - **`exampleStrings.c | exampleStrings_fixed.c`** → archivo fuente que se compila.
   - **`-o exampleStrings | exampleStrings_fixed`** → nombre del ejecutable generado.
-  - **Errores y Warnings obtenidos al realizar la 1ª Compilación**:
+- **Errores y Warnings obtenidos al realizar la 1ª Compilación**:
   <img width="1396" height="880" alt="image" src="https://github.com/user-attachments/assets/328434f1-1031-48f6-a715-14007614fa3e" />
-  - **Warnings obtenidos al arreglar el error de Raw String de C++**:
+- **Warnings obtenidos al arreglar el error de Raw String de C++**:
   <img width="1515" height="446" alt="image" src="https://github.com/user-attachments/assets/f172103b-4825-488e-930e-65a62ab545e1" />
 
 **2) Solución de errores**
@@ -149,26 +149,45 @@ if (snprintf(key, sizeof(key), "%s = %s", argv[1], argv[2]) >= (int)sizeof(key))
 
 ***PARTE II — Tests y verificación***
 
-     1) STR30-C: Do not attempt to modify String literals.
-          - Problema: ptr_char apunta a un literal de cadena y posteriormente se intenta modificar en la linea 101
-          - Test o entrada: ./exampleStrings_fixed cadena1 cadena2
-          - Técnica: Añadir al comando de compilación la función -fanalyzer, para realizar un análisis estático de código
-          - Código original:
-               - Línea 67 (exampleStrings.c):  char *ptr_char  = "new string literal"; 
-               - Línea 101 (exampleStrings.c): ptr_char [0] = 'N';
-          - Resultado de la compilación con código original:
+1) Diseño de pruebas
+
+Para esta segunda parte se han seleccionado cuatro problemas diferentes de la auditoría realizada en la Parte I:
+
+- STR30-C — Do not attempt to modify string literals.
+
+- STR35-C — Do not copy data from an unbounded source to a fixed length array.
+
+- STR31-C / STR32-C — Garantizar espacio suficiente para cadenas y no pasar secuencias no terminadas en '\0' a funciones que esperan cadenas.
+
+- MSC24-C — Do not use deprecated or obsolescent functions.
+
+Se han utilizado diferentes técnicas de verificación, principalmente análisis estático y pruebas funcionales con casos límite. Para detectar errores de memoria se ha utilizado AddressSanitizer.
+
+1) STR30-C: Do not attempt to modify String literals.
+   - Problema: ptr_char apunta a un literal de cadena y posteriormente se intenta modificar en la linea 101
+   - Test o entrada: ./exampleStrings_fixed cadena1 cadena2
+   - Técnica: Añadir al comando de compilación la función -fanalyzer, para realizar un análisis estático de código
+   - Código original:
+     ```c
+     - Línea 67 (exampleStrings.c):  char *ptr_char  = "new string literal"; 
+     - Línea 101 (exampleStrings.c): ptr_char [0] = 'N';
+     ```
+   - Resultado de la compilación con código original:
+
 <img width="531" height="91" alt="Captura desde 2026-10-08 15-33-46" src="https://github.com/user-attachments/assets/82b2ba18-5271-4a4e-9aa5-aa0f801478e3" />
 
-          - Código corregido:
-               - Línea 70 (exampleStrings_fixed.c): char ptr_char [] = "new string literal"; 
-               - Línea 98 (exampleStrings_fixed.c): ptr_char [0] = 'N';
-               - Línea 99 (exampleStrings_fixed.c): printf ("%s\n",ptr_char);
-          - Resultado de la compilación con código corregido:
+   - Código corregido:
+     ```c
+     - Línea 70 (exampleStrings_fixed.c): char ptr_char [] = "new string literal"; 
+     - Línea 98 (exampleStrings_fixed.c): ptr_char [0] = 'N';
+     - Línea 99 (exampleStrings_fixed.c): printf ("%s\n",ptr_char);
+     ```
+   - Resultado de la compilación con código corregido:
+
 <img width="1585" height="320" alt="Captura desde 2026-10-08 15-47-00" src="https://github.com/user-attachments/assets/85405c54-db48-4e73-ae6a-29cebee3e4e8" />
 
-         
-          ** NOTA: A este código se le añade un printf para mostrar el contenido de la cadena, 
-          ya que sin él se obtiene un Warning:
+   ** NOTA: A este código se le añade un printf para mostrar el contenido de la cadena, ya que sin él se obtiene un Warning:
+
 <img width="1585" height="121" alt="Captura desde 2026-10-08 15-48-06" src="https://github.com/user-attachments/assets/f66bd6f7-66b6-4a1b-907d-688a5e99429f" />
 
 2) STR35-C: Do not copy data from an unbounded source to a fixed length array
@@ -211,7 +230,7 @@ if (snprintf(key, sizeof(key), "%s = %s", argv[1], argv[2]) >= (int)sizeof(key))
                 - Línea 98 (exampleStrings.c):  strncpy(array4, array3, sizeof(array3));
                ```
           - Código corregido:
-          - 
+            
                ```c
                - Línea 91 (exampleStrings_fixed.c): strncpy(array3, array5, sizeof(array3)-1)
                - Línea 92 (exampleStrings_fixed.c): array3[sizeof(array3) - 1] = '\0';
@@ -261,14 +280,3 @@ if (snprintf(key, sizeof(key), "%s = %s", argv[1], argv[2]) >= (int)sizeof(key))
 - **Ejemplo relevante de utilización:** Para comprobar STR35-C, se solicitó ayuda para diseñar un caso límite que provocase un desbordamiento del buffer key.
 - Se utilizó la siguiente entrada: ./exampleStrings_asan "$(python3 -c "print('A' * 511)")" "$(python3 -c "print('B' * 511)")"
 - **Tiempo necesario para realizar este ejercicio: Aproximadamente 15 horas entre ambas partes**       
-             
-
-
-
-
-          
-          
-          
-          
-
-     
